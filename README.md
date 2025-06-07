@@ -36,3 +36,26 @@ In short: ConfigMaps hold the configuration data that Prometheus and Alertmanage
 ### Alertmanager:
 Role: As described above, it's the dedicated alert processing and notification component.
 Fit: It sits between Prometheus and your notification systems. Prometheus detects a problem based on metrics and rules, fires an alert, and sends that alert to Alertmanager. Alertmanager then applies its logic (grouping, silencing) and sends the final notification out to Slack, PagerDuty, etc. It decouples alert detection (Prometheus) from alert notification (Alertmanager).
+
+## In general, components involved in this setup and their role:
+
+Kubernetes Cluster: The entire managed environment containing all components.
+Control Plane: The brain of the cluster, managing state and scheduling.
+API Server: The entry point for all cluster management commands and interactions.
+etcd: A distributed key-value store holding the cluster's configuration and state.
+Scheduler: Decides which Worker Node a new Pod should run on.
+Controller Manager: Runs controllers to ensure the cluster matches the desired state.
+Worker Nodes: Machines (VMs/physical) that run the application containers (Pods).
+Kubelet: An agent on each Worker Node ensuring containers in Pods are running and healthy.
+Kube-proxy: Manages network rules on Worker Nodes for Service routing.
+Container Runtime: Software that actually runs the containers (e.g., CRI-O, containerd).
+Node Exporter Pod: Collects hardware and OS metrics from the Worker Node it runs on.
+App Pod (A, B, C): Runs the container(s) for a specific application instance.
+DB Pod (A, B, C): Runs the container(s) for a specific database instance.
+Prometheus Server Pod: Scrapes metrics, stores them, evaluates alert rules based on metrics.
+Kube-State-Metrics Pod: Provides metrics about the state of Kubernetes objects (Deployments, Pods, etc.).
+Alertmanager Pod: Receives alerts from Prometheus, de-duplicates/groups them, and sends notifications. (Highlighted Role)
+Service (App/DB/Prom/AlertMgr): Provides a stable internal IP address and DNS name to access a set of Pods.
+ConfigMap: Stores non-sensitive configuration data (like .yml or .env files) externally from Pods. (Highlighted Role)
+External Notifications: External systems like Slack, PagerDuty, Email where Alertmanager sends alerts.
+User/Admin: Interacts with the cluster (management or application access).
